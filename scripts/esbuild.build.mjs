@@ -1,10 +1,11 @@
 import esbuild from "esbuild";
-import { nodeExternalsPlugin } from "esbuild-node-externals";
 import { globSync } from "glob";
+import packageJson from "../package.json" assert { type: "json" };
 
 const DIST_FOLDER = "dist";
 
-const files = globSync("{./src/**/!(*.test).ts, ./src/**/!(*.test).tsx}");
+const files = globSync("{./src/**/*.ts, ./src/**/*.tsx}");
+const externalDeps = Object.keys(packageJson.peerDependencies);
 
 const baseConfig = {
   entryPoints: files,
@@ -12,16 +13,20 @@ const baseConfig = {
     ".tsx": "tsx",
   },
   define: { "process.env.NODE_ENV": `'production'` },
-  external: ["react", "react-dom"],
+  external: externalDeps,
   bundle: true,
   sourcemap: true,
   treeShaking: true,
   minify: true,
   metafile: true,
   tsconfig: "./tsconfig.json",
-  plugins: [
-    nodeExternalsPlugin(),
-  ],
+};
+
+const cjsConfig = {
+  ...baseConfig,
+  format: "cjs",
+  splitting: false,
+  outdir: `${DIST_FOLDER}/cjs`,
 };
 
 const esmConfig = {
@@ -32,7 +37,10 @@ const esmConfig = {
 };
 
 async function build() {
-  await Promise.all([esbuild.build(esmConfig)]).catch(
+  await Promise.all([
+    esbuild.build(cjsConfig),
+    esbuild.build(esmConfig),
+  ]).catch(
     () => process.exit(1),
   );
 }

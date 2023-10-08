@@ -1,14 +1,21 @@
 {
   "name": "@lytovka/draggable",
   "version": "1.0.0",
-  "description": "",
+  "description": "Responsive draggable component that calculates offsets as percentages, which ensures consistent positioning across screen sizes.",
   "type": "module",
-  "main": "./dist/esm/index.js",
+  "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
   "types": "./dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/esm/index.js",
+      "required": "./dist/cjs/index.js",
+      "types": "./dist/types/index.d.ts"
+    }
+  },
   "scripts": {
-    "dev": "node ./serve.mjs",
-    "build": "rimraf dist && node ./build.mjs && tsc",
+    "watch": "node ./scripts/esbuild.watch.mjs",
+    "build": "rimraf dist && node ./scripts/esbuild.build.mjs && tsc",
     "typecheck": "tsc"
   },
   "keywords": [],
@@ -19,7 +26,6 @@
     "@types/react-dom": "^18.2.7",
     "chokidar": "^3.5.3",
     "esbuild": "^0.19.3",
-    "esbuild-node-externals": "^1.9.0",
     "glob": "^10.3.10",
     "live-server": "^1.2.2",
     "rimraf": "^5.0.5",
