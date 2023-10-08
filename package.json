@@ -3,24 +3,14 @@
   "version": "1.0.0",
   "description": "",
   "type": "module",
-  "main": "./dist/cjs/index.js",
+  "main": "./dist/esm/index.js",
   "module": "./dist/esm/index.js",
-  "exports": {
-    ".": {
-      "import": "./dist/esm/index.js",
-      "require": "./dist/cjs/index.js",
-      "types": "./dist/index.d.ts"
-    }
-  },
+  "types": "./dist/types/index.d.ts",
   "scripts": {
     "dev": "node ./serve.mjs",
     "build": "rimraf dist && node ./build.mjs && tsc",
     "typecheck": "tsc"
   },
-  "files": [
-    "dist",
-    "package.json"
-  ],
   "keywords": [],
   "author": "Ivan Lytovka <ivanlytovka@gmail.com> (https://github.com/lytovka)",
   "license": "ISC",
@@ -29,6 +19,8 @@
     "@types/react-dom": "^18.2.7",
     "chokidar": "^3.5.3",
     "esbuild": "^0.19.3",
+    "esbuild-node-externals": "^1.9.0",
+    "glob": "^10.3.10",
     "live-server": "^1.2.2",
     "rimraf": "^5.0.5",
     "typescript": "^5.2.2"

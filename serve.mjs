@@ -5,12 +5,11 @@ import liveServer from "live-server";
 const DEMO_FOLDER = "demo";
 
 const baseConfig = {
-  entryPoints: ["src/dev.tsx"],
+  entryPoints: ["src/index.dev.tsx"],
   loader: {
     ".tsx": "tsx",
   },
   define: { "process.env.NODE_ENV": `'development'` },
-  // target: ["chrome58", "firefox57", "safari11", "edge16"],
   bundle: true,
   sourcemap: true,
   minify: true,
@@ -35,8 +34,6 @@ chokidar.watch("src/**/*.{ts,tsx}", {
     const endTime = Date.now();
     console.log(`Build time: ${endTime - startTime}ms`);
   });
-  // esbuild.build(esmConfig).catch((err) => console.error(err));
-  // esbuild.build(cjsConfig).catch((err) => console.error(err));
 });
 
 liveServer.start({

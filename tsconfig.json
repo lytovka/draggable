@@ -1,8 +1,12 @@
 {
   "compilerOptions": {
     "declaration": true,
-    "outDir": "dist",
-    "rootDir": "src",
+    "declarationMap": false,
+    "sourceMap": false,
+    "lib": ["dom", "esnext"],
+    "rootDir": "./src",
+    "baseUrl": "./src",
+    "outDir": "./dist/types",
     "target": "esnext",
     "module": "ESNext",
     "jsx": "react",
@@ -13,5 +17,5 @@
     "isolatedModules": true
   },
   "include": ["src/**/*.tsx", "src/**/*.ts"],
-  "exclude": ["node_modules", "src/dev.tsx"]
+  "exclude": ["node_modules", "src/**/*.dev.tsx", "dist"]
 }

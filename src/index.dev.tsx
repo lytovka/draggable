@@ -1,6 +1,6 @@
 import React, { useRef } from "react";
 import { createRoot } from "react-dom/client";
-import { DraggableComponent, DraggingProvider } from "./draggable";
+import { DraggableComponent, DraggingProvider } from "./components";
 
 const App = () => {
   const containerRef = useRef(null);
