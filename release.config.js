@@ -3,7 +3,7 @@
  */
 export default {
   branches: [
-    { name: "main", prerelease: true }, // drop when v1.0.0 is ready
+    "main",
     { name: "beta", prerelease: true },
     { name: "alpha", prerelease: true },
   ],
@@ -77,7 +77,7 @@ export default {
               type: "revert",
               section: "## Revert 🚧",
               hidden: false,
-            }
+            },
           ],
         },
       },
