@@ -32,6 +32,9 @@
     "type": "git",
     "url": "git+https://github.com/lytovka/draggable.git"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "devDependencies": {
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/commit-analyzer": "^11.0.0",
