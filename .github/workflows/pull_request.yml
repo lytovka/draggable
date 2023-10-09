@@ -6,7 +6,7 @@ jobs:
     name: Release
     runs-on: ubuntu-latest
     concurrency:
-      group: ${{ github.workflow }}-release
+      group: ${{ github.head_ref }}-pull-request 
       cancel-in-progress: true
     
     steps:
