@@ -1,7 +1,8 @@
 {
   "name": "@lytovka/draggable",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "Responsive draggable component that calculates offsets as percentages, which ensures consistent positioning across screen sizes.",
+  "keywords": ["react", "draggable"],
   "type": "module",
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
@@ -18,9 +19,16 @@
     "build": "rimraf dist && node ./scripts/esbuild.build.mjs && tsc",
     "typecheck": "tsc"
   },
-  "keywords": [],
   "author": "Ivan Lytovka <ivanlytovka@gmail.com> (https://github.com/lytovka)",
   "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/lytovka/draggable/issues",
+    "email": "ivanlytovka@gmail.com"
+  },
+  "repository": {
+    "type": "git".
+    "url": "git+https://github.com/lytovka/draggable.git"
+  },
   "devDependencies": {
     "@types/react": "^18.2.22",
     "@types/react-dom": "^18.2.7",
