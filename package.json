@@ -19,7 +19,7 @@
   },
   "scripts": {
     "watch": "node ./scripts/esbuild.watch.mjs",
-    "build": "rimraf dist && node ./scripts/esbuild.build.mjs && tsc",
+    "build": "rimraf dist && tsc && node ./scripts/esbuild.build.mjs",
     "typecheck": "tsc"
   },
   "author": "Ivan Lytovka <ivanlytovka@gmail.com> (https://github.com/lytovka)",

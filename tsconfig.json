@@ -1,20 +1,36 @@
 {
   "compilerOptions": {
-    "declaration": true,
-    "declarationMap": false,
-    "sourceMap": false,
-    "lib": ["dom", "esnext"],
-    "rootDir": "./src",
-    "baseUrl": "./src",
-    "outDir": "./dist/types",
-    "target": "esnext",
-    "module": "ESNext",
-    "jsx": "react",
-    "moduleResolution": "node",
-    "emitDeclarationOnly": true,
-    "strict": true,
+    /* Base Options */
     "esModuleInterop": true,
-    "isolatedModules": true
+    "skipLibCheck": true,
+    "target": "esnext",
+    "verbatimModuleSyntax": true,
+    "allowJs": true,
+    "resolveJsonModule": true,
+    "moduleDetection": "force",
+
+    /* Strictness */
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+
+    /* Transpiling with TS */
+    "moduleResolution": "Bundler",
+    "module": "esnext",
+    "outDir": "./dist/types",
+    "emitDeclarationOnly": true,
+    "sourceMap": true,
+    "allowImportingTsExtensions": true,
+
+    /* Library specific */
+    "lib": ["esnext", "dom", "dom.iterable"],
+    "declaration": true,
+    "jsx": "react",
+
+    /* Paths */
+    "baseUrl": ".",
+    "paths": {
+      "~/*": ["src/*"]
+    }
   },
   "include": ["src/**/*.tsx", "src/**/*.ts"],
   "exclude": ["node_modules", "src/**/*.dev.tsx", "dist"]

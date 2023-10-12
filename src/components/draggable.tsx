@@ -1,41 +1,17 @@
 import React, {
+  type PropsWithChildren,
   useCallback,
   useContext,
   useEffect,
   useRef,
   useState,
 } from "react";
-import type { CSSProperties, Dispatch, PropsWithChildren } from "react";
-
-export type Position = [number, number];
-export type Positions = Array<Position>;
-
-export interface DraggingContextType {
-  draggingItem: string | null;
-  setDraggingItem: Dispatch<React.SetStateAction<string | null>>;
-}
-
-export interface DraggableComponentProps extends PropsWithChildren {
-  id: string;
-  style?: CSSProperties;
-  initialPosition: Position;
-  containerRef: React.RefObject<HTMLDivElement> | null;
-  onDragStart: (
-    event: React.MouseEvent<HTMLDivElement> | React.TouchEvent,
-    id: string,
-  ) => void;
-  onDragMove: (event: MouseEvent | TouchEvent, id: string) => void;
-  callback: (id: number, currentPositionPercent: Position) => void;
-}
-
-export interface DragData {
-  positionPx: Position;
-  positionPercent: Position;
-  parentDimensions: [number, number];
-  dimensionsPercent: [number, number];
-  dimensions: [string, string];
-  maxPositionPercent: [number, number];
-}
+import type {
+  DragData,
+  DraggableComponentProps,
+  DraggingContextType,
+  Position,
+} from "~/components/types";
 
 const DEFAULT_WIDTH = "90";
 const DEFAULT_HEIGHT = "90";
@@ -152,6 +128,7 @@ export const DraggableComponent = ({
     (event: React.TouchEvent<HTMLDivElement>) => {
       setDraggingItem(id);
       const touch = event.touches[0];
+      if (typeof touch === "undefined") return;
       dragData.current.positionPx = [touch.clientX, touch.clientY];
       dragData.current.positionPercent = [
         currentPositionPercent[0],
@@ -168,6 +145,7 @@ export const DraggableComponent = ({
       if (draggingItem !== id) return;
 
       const touch = event.touches[0];
+      if (typeof touch === "undefined") return;
       const deltaX = touch.clientX - dragData.current.positionPx[0];
       const deltaY = touch.clientY - dragData.current.positionPx[1];
       const percentX = getPercentage(
