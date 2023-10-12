@@ -1,9 +1,6 @@
 import esbuild from "esbuild";
 import { globSync } from "glob";
 import packageJson from "../package.json" assert { type: "json" };
-import path from "path";
-import fs from "fs/promises";
-import { __dirname } from "../root.js";
 
 const DIST_FOLDER = "dist";
 
@@ -37,13 +34,6 @@ const esmConfig = {
   splitting: true,
   outdir: `${DIST_FOLDER}/esm`,
 };
-
-async function copyPackageJson() {
-  console.info(`Copying package.json to ${DIST_FOLDER} folder...`);
-  const source = path.resolve(__dirname, "package.json");
-  const destination = path.resolve(__dirname, DIST_FOLDER, "package.json");
-  await fs.copyFile(source, destination);
-}
 
 async function build() {
   await Promise.all([
