@@ -13,11 +13,11 @@ export interface DraggableComponentProps extends PropsWithChildren {
   style?: CSSProperties;
   initialPosition: Position;
   containerRef: React.RefObject<HTMLDivElement> | null;
-  onDragStart: (
+  onDragStart?: (
     event: React.MouseEvent<HTMLDivElement> | React.TouchEvent,
     id: string,
   ) => void;
-  onDragMove: (event: MouseEvent | TouchEvent, id: string) => void;
+  onDragMove?: (event: MouseEvent | TouchEvent, id: string) => void;
   callback?: (id: string, stats: DraggableItemStats) => void;
 }
 

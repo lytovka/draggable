@@ -7,8 +7,8 @@ import React, {
   useState,
 } from "react";
 import type {
-  DraggableItemStats,
   DraggableComponentProps,
+  DraggableItemStats,
   DraggingContextType,
   Position,
 } from "./types";
@@ -91,7 +91,10 @@ export const DraggableComponent = ({
         currentPositionPercent[0],
         currentPositionPercent[1],
       ];
-      onDragStart(event, id);
+
+      if (typeof onDragStart === "function") {
+        onDragStart(event, id);
+      }
     },
     [id, currentPositionPercent, onDragStart, setDraggingItem],
   );
@@ -119,7 +122,9 @@ export const DraggableComponent = ({
       );
 
       setCurrentPositionPercent([finalX, finalY]);
-      onDragMove(event, id);
+      if (typeof onDragMove === "function") {
+        onDragMove(event, id);
+      }
     },
     [onDragMove, id],
   );
@@ -135,7 +140,9 @@ export const DraggableComponent = ({
         currentPositionPercent[1],
       ];
 
-      onDragStart(event, id);
+      if (typeof onDragStart === "function") {
+        onDragStart(event, id);
+      }
     },
     [id, currentPositionPercent, onDragStart, setDraggingItem],
   );
@@ -172,7 +179,9 @@ export const DraggableComponent = ({
       );
 
       setCurrentPositionPercent([finalX, finalY]);
-      onDragMove(event, id);
+      if (typeof onDragMove === "function") {
+        onDragMove(event, id);
+      }
     },
     [draggingItem, onDragMove, id],
   );
