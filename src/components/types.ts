@@ -18,10 +18,10 @@ export interface DraggableComponentProps extends PropsWithChildren {
     id: string,
   ) => void;
   onDragMove: (event: MouseEvent | TouchEvent, id: string) => void;
-  callback: (id: number, currentPositionPercent: Position) => void;
+  callback?: (id: string, stats: DraggableItemStats) => void;
 }
 
-export interface DragData {
+export interface DraggableItemStats {
   positionPx: Position;
   positionPercent: Position;
   parentDimensions: [number, number];
