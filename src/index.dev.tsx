@@ -17,26 +17,18 @@ const App = () => {
     >
       <DraggingProvider>
         <DraggableComponent
-          callback={() => {}}
-          containerRef={containerRef}
           id={`1`}
+          containerRef={containerRef}
           initialPosition={[0, 0]}
-          key={1}
-          onDragStart={() => {}}
-          onDragMove={() => {}}
           style={{ width: 200, height: 200, background: "red" }}
         >
           <p>Hello!</p>
           <p>Hello!</p>
         </DraggableComponent>
         <DraggableComponent
-          callback={() => {}}
-          containerRef={containerRef}
           id={`2`}
+          containerRef={containerRef}
           initialPosition={[10, 0]}
-          key={2}
-          onDragStart={() => {}}
-          onDragMove={() => {}}
           style={{ background: "green" }}
         >
           <p>hello!</p>
