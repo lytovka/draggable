@@ -2,10 +2,10 @@ import esbuild from "esbuild";
 import chokidar from "chokidar";
 import liveServer from "live-server";
 
-const DEMO_FOLDER = "demo";
+const FOLDER = "";
 
 const baseConfig = {
-  entryPoints: ["src/index.dev.tsx"],
+  entryPoints: ["src/example.dev.tsx"],
   loader: {
     ".tsx": "tsx",
   },
@@ -19,7 +19,7 @@ const baseConfig = {
 const esmConfig = {
   ...baseConfig,
   format: "esm",
-  outfile: `${DEMO_FOLDER}/dev.mjs`,
+  outfile: `${FOLDER}/dev.mjs`,
 };
 
 const builder = await esbuild.context(esmConfig);
@@ -42,5 +42,5 @@ liveServer.start({
   // Uses `PORT=...` or 8080 as a fallback.
   port: +process.env.PORT || 8080,
   // Uses `public` as the local server folder.
-  root: DEMO_FOLDER,
+  root: FOLDER,
 });

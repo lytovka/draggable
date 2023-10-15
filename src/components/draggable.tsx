@@ -7,11 +7,11 @@ import React, {
   useState,
 } from "react";
 import type {
-  DragData,
   DraggableComponentProps,
+  DraggableItemStats,
   DraggingContextType,
   Position,
-} from "~/components/types";
+} from "./types";
 
 const DEFAULT_WIDTH = "90";
 const DEFAULT_HEIGHT = "90";
@@ -55,7 +55,7 @@ export const DraggableComponent = ({
   >(
     initialPosition ? initialPosition : [0, 0],
   );
-  const dragData = useRef<DragData>({
+  const itemStats = useRef<DraggableItemStats>({
     positionPx: [0, 0],
     positionPercent: [0, 0],
     parentDimensions: [0, 0],
@@ -67,18 +67,18 @@ export const DraggableComponent = ({
     get dimensionsPercent(): [number, number] {
       const width = getPercentage(
         parseInt(this.dimensions[0]),
-        dragData.current.parentDimensions[0],
+        itemStats.current.parentDimensions[0],
       );
       const height = getPercentage(
         parseInt(this.dimensions[1]),
-        dragData.current.parentDimensions[1],
+        itemStats.current.parentDimensions[1],
       );
       return [width, height];
     },
     get maxPositionPercent(): Position {
       return [
-        100 - dragData.current.dimensionsPercent[0],
-        100 - dragData.current.dimensionsPercent[1],
+        100 - itemStats.current.dimensionsPercent[0],
+        100 - itemStats.current.dimensionsPercent[1],
       ];
     },
   });
@@ -86,40 +86,45 @@ export const DraggableComponent = ({
   const handleMouseDown = useCallback(
     (event: React.MouseEvent<HTMLDivElement>) => {
       setDraggingItem(id);
-      dragData.current.positionPx = [event.clientX, event.clientY];
-      dragData.current.positionPercent = [
+      itemStats.current.positionPx = [event.clientX, event.clientY];
+      itemStats.current.positionPercent = [
         currentPositionPercent[0],
         currentPositionPercent[1],
       ];
-      onDragStart(event, id);
+
+      if (typeof onDragStart === "function") {
+        onDragStart(event, id);
+      }
     },
     [id, currentPositionPercent, onDragStart, setDraggingItem],
   );
 
   const handleMouseMove = useCallback(
     (event: MouseEvent) => {
-      const deltaX = event.clientX - dragData.current.positionPx[0];
-      const deltaY = event.clientY - dragData.current.positionPx[1];
+      const deltaX = event.clientX - itemStats.current.positionPx[0];
+      const deltaY = event.clientY - itemStats.current.positionPx[1];
       const percentX = getPercentage(
         deltaX,
-        dragData.current.parentDimensions[0],
+        itemStats.current.parentDimensions[0],
       );
       const percentY = getPercentage(
         deltaY,
-        dragData.current.parentDimensions[1],
+        itemStats.current.parentDimensions[1],
       );
 
       const finalX = Math.min(
-        Math.max(0, dragData.current.positionPercent[0] + percentX),
-        dragData.current.maxPositionPercent[0],
+        Math.max(0, itemStats.current.positionPercent[0] + percentX),
+        itemStats.current.maxPositionPercent[0],
       );
       const finalY = Math.min(
-        Math.max(0, dragData.current.positionPercent[1] + percentY),
-        dragData.current.maxPositionPercent[1],
+        Math.max(0, itemStats.current.positionPercent[1] + percentY),
+        itemStats.current.maxPositionPercent[1],
       );
 
       setCurrentPositionPercent([finalX, finalY]);
-      onDragMove(event, id);
+      if (typeof onDragMove === "function") {
+        onDragMove(event, id);
+      }
     },
     [onDragMove, id],
   );
@@ -129,13 +134,15 @@ export const DraggableComponent = ({
       setDraggingItem(id);
       const touch = event.touches[0];
       if (typeof touch === "undefined") return;
-      dragData.current.positionPx = [touch.clientX, touch.clientY];
-      dragData.current.positionPercent = [
+      itemStats.current.positionPx = [touch.clientX, touch.clientY];
+      itemStats.current.positionPercent = [
         currentPositionPercent[0],
         currentPositionPercent[1],
       ];
 
-      onDragStart(event, id);
+      if (typeof onDragStart === "function") {
+        onDragStart(event, id);
+      }
     },
     [id, currentPositionPercent, onDragStart, setDraggingItem],
   );
@@ -146,45 +153,52 @@ export const DraggableComponent = ({
 
       const touch = event.touches[0];
       if (typeof touch === "undefined") return;
-      const deltaX = touch.clientX - dragData.current.positionPx[0];
-      const deltaY = touch.clientY - dragData.current.positionPx[1];
+      const deltaX = touch.clientX - itemStats.current.positionPx[0];
+      const deltaY = touch.clientY - itemStats.current.positionPx[1];
       const percentX = getPercentage(
         deltaX,
-        dragData.current.parentDimensions[0],
+        itemStats.current.parentDimensions[0],
       );
       const percentY = getPercentage(
         deltaY,
-        dragData.current.parentDimensions[1],
+        itemStats.current.parentDimensions[1],
       );
 
       // Calculate max allowed percentage
-      const maxPercentX = 100 - dragData.current.dimensionsPercent[0];
-      const maxPercentY = 100 - dragData.current.dimensionsPercent[1];
+      const maxPercentX = 100 - itemStats.current.dimensionsPercent[0];
+      const maxPercentY = 100 - itemStats.current.dimensionsPercent[1];
 
       // Clamp the values between the minimum and maximum
       const finalX = Math.min(
-        Math.max(0, dragData.current.positionPercent[0] + percentX),
+        Math.max(0, itemStats.current.positionPercent[0] + percentX),
         maxPercentX,
       );
       const finalY = Math.min(
-        Math.max(0, dragData.current.positionPercent[1] + percentY),
+        Math.max(0, itemStats.current.positionPercent[1] + percentY),
         maxPercentY,
       );
 
       setCurrentPositionPercent([finalX, finalY]);
-      onDragMove(event, id);
+      if (typeof onDragMove === "function") {
+        onDragMove(event, id);
+      }
     },
     [draggingItem, onDragMove, id],
   );
 
   const stopDragging = useCallback(() => {
     setDraggingItem(null);
-    callback(Number(id), currentPositionPercent);
+    if (typeof callback === "function" && itemStats.current) {
+      callback(id, {
+        ...itemStats.current,
+        positionPercent: currentPositionPercent,
+      });
+    }
   }, [id, setDraggingItem, callback, currentPositionPercent]);
 
   const updateContainerDimensions = useCallback((current: HTMLDivElement) => {
     const { width, height } = current.getBoundingClientRect();
-    dragData.current.parentDimensions = [width, height];
+    itemStats.current.parentDimensions = [width, height];
   }, []);
 
   useEffect(() => {
@@ -231,8 +245,8 @@ export const DraggableComponent = ({
       style={{
         ...rest.style,
         position: "absolute",
-        width: getPxValue(dragData.current.dimensions[0]),
-        height: getPxValue(dragData.current.dimensions[1]),
+        width: getPxValue(itemStats.current.dimensions[0]),
+        height: getPxValue(itemStats.current.dimensions[1]),
         left: getPercentageValue(currentPositionPercent[0]),
         top: getPercentageValue(currentPositionPercent[1]),
       }}
