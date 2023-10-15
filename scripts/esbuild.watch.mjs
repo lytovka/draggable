@@ -2,7 +2,7 @@ import esbuild from "esbuild";
 import chokidar from "chokidar";
 import liveServer from "live-server";
 
-const FOLDER = "";
+const FOLDER = "example";
 
 const baseConfig = {
   entryPoints: ["src/example.dev.tsx"],

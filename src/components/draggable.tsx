@@ -83,10 +83,16 @@ export const DraggableComponent = ({
     },
   });
 
-  const handleMouseDown = useCallback(
-    (event: React.MouseEvent<HTMLDivElement>) => {
+  const handleDown = useCallback(
+    (
+      event:
+        | React.MouseEvent<HTMLDivElement>
+        | React.TouchEvent<HTMLDivElement>,
+      clientX: number,
+      clientY: number,
+    ) => {
       setDraggingItem(id);
-      itemStats.current.positionPx = [event.clientX, event.clientY];
+      itemStats.current.positionPx = [clientX, clientY];
       itemStats.current.positionPercent = [
         currentPositionPercent[0],
         currentPositionPercent[1],
@@ -99,10 +105,11 @@ export const DraggableComponent = ({
     [id, currentPositionPercent, onDragStart, setDraggingItem],
   );
 
-  const handleMouseMove = useCallback(
-    (event: MouseEvent) => {
-      const deltaX = event.clientX - itemStats.current.positionPx[0];
-      const deltaY = event.clientY - itemStats.current.positionPx[1];
+  const handleMove = useCallback(
+    (event: MouseEvent | TouchEvent, clientX: number, clientY: number) => {
+      const deltaX = clientX - itemStats.current.positionPx[0];
+      const deltaY = clientY - itemStats.current.positionPx[1];
+
       const percentX = getPercentage(
         deltaX,
         itemStats.current.parentDimensions[0],
@@ -129,22 +136,28 @@ export const DraggableComponent = ({
     [onDragMove, id],
   );
 
+  const handleMouseDown = useCallback(
+    (event: React.MouseEvent<HTMLDivElement>) => {
+      handleDown(event, event.clientX, event.clientY);
+    },
+    [handleDown],
+  );
+
+  const handleMouseMove = useCallback(
+    (event: MouseEvent) => {
+      handleMove(event, event.clientX, event.clientY);
+    },
+    [handleMove],
+  );
+
   const handleTouchStart = useCallback(
     (event: React.TouchEvent<HTMLDivElement>) => {
-      setDraggingItem(id);
       const touch = event.touches[0];
       if (typeof touch === "undefined") return;
+      handleDown(event, touch.clientX, touch.clientX);
       itemStats.current.positionPx = [touch.clientX, touch.clientY];
-      itemStats.current.positionPercent = [
-        currentPositionPercent[0],
-        currentPositionPercent[1],
-      ];
-
-      if (typeof onDragStart === "function") {
-        onDragStart(event, id);
-      }
     },
-    [id, currentPositionPercent, onDragStart, setDraggingItem],
+    [handleDown],
   );
 
   const handleTouchMove = useCallback(
@@ -153,35 +166,7 @@ export const DraggableComponent = ({
 
       const touch = event.touches[0];
       if (typeof touch === "undefined") return;
-      const deltaX = touch.clientX - itemStats.current.positionPx[0];
-      const deltaY = touch.clientY - itemStats.current.positionPx[1];
-      const percentX = getPercentage(
-        deltaX,
-        itemStats.current.parentDimensions[0],
-      );
-      const percentY = getPercentage(
-        deltaY,
-        itemStats.current.parentDimensions[1],
-      );
-
-      // Calculate max allowed percentage
-      const maxPercentX = 100 - itemStats.current.dimensionsPercent[0];
-      const maxPercentY = 100 - itemStats.current.dimensionsPercent[1];
-
-      // Clamp the values between the minimum and maximum
-      const finalX = Math.min(
-        Math.max(0, itemStats.current.positionPercent[0] + percentX),
-        maxPercentX,
-      );
-      const finalY = Math.min(
-        Math.max(0, itemStats.current.positionPercent[1] + percentY),
-        maxPercentY,
-      );
-
-      setCurrentPositionPercent([finalX, finalY]);
-      if (typeof onDragMove === "function") {
-        onDragMove(event, id);
-      }
+      handleMove(event, touch.clientX, touch.clientY);
     },
     [draggingItem, onDragMove, id],
   );
