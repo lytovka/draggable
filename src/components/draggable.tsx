@@ -1,11 +1,11 @@
 import React, {
-  type PropsWithChildren,
   useCallback,
   useContext,
   useEffect,
   useRef,
   useState,
 } from "react";
+import type { PropsWithChildren } from "react";
 import type {
   DraggableComponentProps,
   DraggableItemStats,
@@ -17,8 +17,8 @@ const DEFAULT_WIDTH = "90";
 const DEFAULT_HEIGHT = "90";
 
 const getPercentage = (value: number, max: number) => (value / max) * 100;
-const getPxValue = (value: string | number) => `${value}px`;
-const getPercentageValue = (value: string | number) => `${value}%`;
+const getPxValue = (value: number | string) => `${value}px`;
+const getPercentageValue = (value: number | string) => `${value}%`;
 
 export const DraggingContext = React.createContext<DraggingContextType>({
   draggingItem: null,
@@ -33,6 +33,7 @@ export const DraggingProvider = ({ children }: PropsWithChildren) => {
   const [draggingItem, setDraggingItem] = useState<string | null>(null);
 
   return (
+    // eslint-disable-next-line
     <DraggingContext.Provider value={{ draggingItem, setDraggingItem }}>
       {children}
     </DraggingContext.Provider>
@@ -62,17 +63,19 @@ export const DraggableComponent = ({
     get dimensions(): [string, string] {
       const width = rest.style?.width?.toString() ?? DEFAULT_WIDTH;
       const height = rest.style?.height?.toString() ?? DEFAULT_HEIGHT;
+
       return [width, height];
     },
     get dimensionsPercent(): [number, number] {
       const width = getPercentage(
-        parseInt(this.dimensions[0]),
+        parseInt(itemStats.current.dimensions[0], 10),
         itemStats.current.parentDimensions[0],
       );
       const height = getPercentage(
-        parseInt(this.dimensions[1]),
+        parseInt(itemStats.current.dimensions[1], 10),
         itemStats.current.parentDimensions[1],
       );
+
       return [width, height];
     },
     get maxPositionPercent(): Position {
@@ -85,9 +88,7 @@ export const DraggableComponent = ({
 
   const handleDown = useCallback(
     (
-      event:
-        | React.MouseEvent<HTMLDivElement>
-        | React.TouchEvent<HTMLDivElement>,
+      event: React.MouseEvent | React.TouchEvent,
       clientX: number,
       clientY: number,
     ) => {
@@ -106,7 +107,11 @@ export const DraggableComponent = ({
   );
 
   const handleMove = useCallback(
-    (event: MouseEvent | TouchEvent, clientX: number, clientY: number) => {
+    (
+      event: MouseEvent | TouchEvent,
+      clientX: number,
+      clientY: number,
+    ) => {
       const deltaX = clientX - itemStats.current.positionPx[0];
       const deltaY = clientY - itemStats.current.positionPx[1];
 
@@ -168,12 +173,12 @@ export const DraggableComponent = ({
       if (typeof touch === "undefined") return;
       handleMove(event, touch.clientX, touch.clientY);
     },
-    [draggingItem, onDragMove, id],
+    [draggingItem, id, handleMove],
   );
 
   const stopDragging = useCallback(() => {
     setDraggingItem(null);
-    if (typeof callback === "function" && itemStats.current) {
+    if (typeof callback === "function") {
       callback(id, {
         ...itemStats.current,
         positionPercent: currentPositionPercent,
@@ -226,6 +231,7 @@ export const DraggableComponent = ({
   }, [draggingItem, handleMouseMove, handleTouchMove, id, stopDragging]);
 
   return (
+    // eslint-disable-next-line
     <div
       style={{
         ...rest.style,

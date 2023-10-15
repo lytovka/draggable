@@ -1,20 +1,20 @@
-import type { CSSProperties, Dispatch, PropsWithChildren } from "react";
+import type React from "react";
 
 export type Position = [number, number];
 export type Positions = Array<Position>;
 
 export interface DraggingContextType {
   draggingItem: string | null;
-  setDraggingItem: Dispatch<React.SetStateAction<string | null>>;
+  setDraggingItem: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
-export interface DraggableComponentProps extends PropsWithChildren {
+export interface DraggableComponentProps extends React.PropsWithChildren {
   id: string;
-  style?: CSSProperties;
-  initialPosition: Position;
+  style?: React.CSSProperties;
   containerRef: React.RefObject<HTMLDivElement> | null;
+  initialPosition?: Position;
   onDragStart?: (
-    event: React.MouseEvent<HTMLDivElement> | React.TouchEvent,
+    event: React.MouseEvent | React.TouchEvent,
     id: string,
   ) => void;
   onDragMove?: (event: MouseEvent | TouchEvent, id: string) => void;
