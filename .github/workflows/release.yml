@@ -50,28 +50,28 @@ jobs:
       - name: Bump release version
         if: ${{ github.event.inputs.pre-release == 'false' }}
         run: |
-          echo NEW_VERSION=$(npm version $RELEASE_TYPE --no-git-tag-version) >> $GITHUB_ENV
+          echo "Running a $(${{ github.event.inputs.release-type }}) release"
+          echo NEW_VERSION=$(npm version ${{ github.event.inputs.release-type }} --no-git-tag-version) >> $GITHUB_ENV
           echo RELEASE_TAG=`latest` >> $GITHUB_ENV
-        env:
-          RELEASE_TYPE: ${{ github.event.inputs.release-type }}
 
       - name: Bump pre-release version
         if: ${{ github.event.inputs.pre-release == 'true' }}
         run: |
-          echo Running a ${{ github.event.inputs.release-type }} release
-          echo NEW_VERSION=$(npm version ${{ github.event.inputs.release-type }} --preid=beta --no-git-tag-version) >> $GITHUB_ENV
-          echo RELEASE_TAG=`beta` >> $GITHUB_ENV
+          echo "Running a $RELEASE_TYPE release"
+          NEW_VERSION=$(npm version $RELEASE_TYPE --preid=beta --no-git-tag-version)
+          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
+          echo "RELEASE_TAG=beta" >> $GITHUB_ENV
         env:
-          RELEASE_TYPE: format('pre{0}', ${{ github.event.inputs.release-type }})
+          RELEASE_TYPE: pre${{ github.event.inputs.release-type }}
           
       - name: Commit package.json changes and create a new tag
         run: |
           git add package.json package-lock.json
-          git commit -m "chore: release ${{ env.NEW_VERSION }}"
-          git tag ${{ env.NEW_VERSION }}
+          git commit -m "chore: release $NEW_VERSION"
+          git tag $NEW_VERSION
 
       - name: Publish to npm registry
-        run: npm publish --access public --tag ${{ env.RELEASE_TAG }}
+        run: npm publish --access public --tag $RELEASE_TAG
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
