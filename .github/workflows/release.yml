@@ -1,6 +1,6 @@
 name: Release to npm registry
 on:
-  workflow_dispatch
+  workflow_dispatch:
     inputs:
       release-type:
         type: choice
