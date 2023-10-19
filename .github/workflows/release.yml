@@ -11,7 +11,7 @@ on:
           - major
       pre-release:
         type: boolean
-        description: opt-in if this is a pre-release version
+        description: Pre-release 
 
 jobs:
   release:
@@ -58,7 +58,8 @@ jobs:
       - name: Bump pre-release version
         if: ${{ github.event.inputs.pre-release == 'true' }}
         run: |
-          echo NEW_VERSION=$(npm version $RELEASE_TYPE --preid=beta --no-git-tag-version) >> $GITHUB_ENV
+          echo Running a ${{ github.event.inputs.release-type }} release
+          echo NEW_VERSION=$(npm version ${{ github.event.inputs.release-type }} --preid=beta --no-git-tag-version) >> $GITHUB_ENV
           echo RELEASE_TAG=`beta` >> $GITHUB_ENV
         env:
           RELEASE_TYPE: format('pre{0}', ${{ github.event.inputs.release-type }})
