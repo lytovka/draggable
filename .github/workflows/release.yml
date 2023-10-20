@@ -64,8 +64,9 @@ jobs:
         env:
           RELEASE_TYPE: pre${{ github.event.inputs.release-type }}
           
-      - name: Commit package.json changes and create a new tag
+      - name: Create release branch, commit files and create a new tag
         run: |
+          git checkout -b chore/release-$NEW_VERSION
           git add package.json package-lock.json
           git commit -m "chore: release $NEW_VERSION"
           git tag $NEW_VERSION
@@ -76,7 +77,4 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Push changes to repo
-        run: |
-          git push origin HEAD --tags
-        env:
-          BOT_ACCESS_TOKEN: ${{ secrets.BOT_ACCESS_TOKEN }}
+        run: git push origin HEAD --tags
