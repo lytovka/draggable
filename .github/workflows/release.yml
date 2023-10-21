@@ -35,12 +35,7 @@ jobs:
         with:
           registry-url: https://registry.npmjs.org/
           node-version: ${{ env.NVMRC }}
-
-      - name: Configure git
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-      
+     
       - name: Install dependencies
         run: npm ci
       
@@ -63,17 +58,39 @@ jobs:
           echo "RELEASE_TAG=beta" >> $GITHUB_ENV
         env:
           RELEASE_TYPE: pre${{ github.event.inputs.release-type }}
-          
-      - name: Commit files and create a new tag
-        run: |
-          git add package.json package-lock.json
-          git commit -m "chore: release $NEW_VERSION"
-          git tag $NEW_VERSION
-
+         
       - name: Publish to npm registry
         run: npm publish --access public --tag $RELEASE_TAG
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Push changes to repo
-        run: git push origin HEAD --tags
+      - name: Create chore release message
+        id: chore-release-commit-message
+        run: |
+          commit_message_type="chore(release)"
+          commit_message_content="bump project to $NEW_VERSION"
+          echo "commit_message=$commit_message_type: $commit_message_content" >> $GIHUB_OUTPUT
+
+      - name: Create release branch, commit files and create 
+        id: chore-release-branch
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -b chore/release-$NEW_VERSION
+          git add package.json package-lock.json
+          git commit -m "${{ steps.chore-release-commit-message.outputs.commit_message }}"
+          git push origin HEAD
+      
+      - name: Create Git tag for the release
+        run: |
+          git tag $NEW_VERSION
+          git push origin $NEW_VERSION
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create a pull request
+        run: >-
+          gh pr create \
+            --base main \
+            --title "${{ steps.chore-release-commit-message.outputs.commit_message }}" \
+            --body "This PR retroactively updates package to the most recently published version: `$NEW_VERSION`."
