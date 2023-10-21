@@ -59,11 +59,11 @@ jobs:
         env:
           RELEASE_TYPE: pre${{ github.event.inputs.release-type }}
          
-      # - name: Publish to npm registry
-      #   run: npm publish --access public --tag $RELEASE_TAG
-      #   env:
-      #     NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-      #
+      - name: Publish to npm registry
+        run: npm publish --access public --tag $RELEASE_TAG
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
       - name: Create chore release message
         id: chore-release-commit-message
         run: |
@@ -93,6 +93,6 @@ jobs:
           gh pr create \
             --base main \
             --title "${{ steps.chore-release-commit-message.outputs.commit_message }}" \
-            --body "This PR retroactively updates package to the most recently published version: `$NEW_VERSION`."
+            --body "This PR retroactively updates package to the most recently published version: $NEW_VERSION."
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
