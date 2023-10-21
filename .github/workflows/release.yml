@@ -59,17 +59,17 @@ jobs:
         env:
           RELEASE_TYPE: pre${{ github.event.inputs.release-type }}
          
-      - name: Publish to npm registry
-        run: npm publish --access public --tag $RELEASE_TAG
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
+      # - name: Publish to npm registry
+      #   run: npm publish --access public --tag $RELEASE_TAG
+      #   env:
+      #     NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      #
       - name: Create chore release message
         id: chore-release-commit-message
         run: |
           commit_message_type="chore(release)"
           commit_message_content="bump project to $NEW_VERSION"
-          echo "commit_message=$commit_message_type: $commit_message_content" >> $GIHUB_OUTPUT
+          echo "commit_message=$commit_message_type: $commit_message_content" >> $GITHUB_OUTPUT
 
       - name: Create release branch, commit files and create 
         id: chore-release-branch
