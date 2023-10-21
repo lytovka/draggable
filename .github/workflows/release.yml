@@ -64,9 +64,8 @@ jobs:
         env:
           RELEASE_TYPE: pre${{ github.event.inputs.release-type }}
           
-      - name: Create release branch, commit files and create a new tag
+      - name: Commit files and create a new tag
         run: |
-          git checkout -b chore/release-$NEW_VERSION
           git add package.json package-lock.json
           git commit -m "chore: release $NEW_VERSION"
           git tag $NEW_VERSION
