@@ -99,3 +99,5 @@ jobs:
             --prerelease \
             --title "$GIT_TAG" \
             --notes "This is a test pre-release."
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
