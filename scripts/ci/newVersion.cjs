@@ -1,5 +1,5 @@
-import semver from "semver";
-import packageJson from "../../package.json" assert { type: "json" };
+const semver = require("semver")
+const packageJson = require("../../package.json")
 
 const workflowType = process.argv[2];
 const newReleaseType = process.argv[3];
