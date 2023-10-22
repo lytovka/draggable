@@ -41,8 +41,8 @@ jobs:
 
       - name: Determine new version 
         run: |
-          echo "NEW_VERSION=$(node -p ./scripts/ci/newVersion.js pre-release ${{ github.event.inputs.pre-release-type }})"
-          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
+          script_path="${GITHUB_WORKSPACE}/scripts/ci/newVersion.js"
+          echo "NEW_VERSION=$(node -p ${script_path} pre-release ${{ github.event.inputs.pre-release-type }})" >> $GITHUB_ENV
           echo "RELEASE_TAG=beta" >> $GITHUB_ENV
 
       - name: Publish to npm registry
