@@ -9,9 +9,6 @@ on:
           - patch
           - minor
           - major
-      pre-release:
-        type: boolean
-        description: Pre-release 
 
 jobs:
   release:
@@ -43,23 +40,13 @@ jobs:
         run: npm run build
 
       - name: Bump release version
-        if: ${{ github.event.inputs.pre-release == 'false' }}
         run: |
           NEW_VERSION=$(npm version $RELEASE_TYPE --no-git-tag-version)
           echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
           echo "RELEASE_TAG=latest" >> $GITHUB_ENV
         env:
           RELEASE_TYPE: ${{ github.event.inputs.release-type }}
-
-      - name: Bump pre-release version
-        if: ${{ github.event.inputs.pre-release == 'true' }}
-        run: |
-          NEW_VERSION=$(npm version $RELEASE_TYPE --preid=beta --no-git-tag-version)
-          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
-          echo "RELEASE_TAG=beta" >> $GITHUB_ENV
-        env:
-          RELEASE_TYPE: pre${{ github.event.inputs.release-type }}
-         
+        
       - name: Publish to npm registry
         run: npm publish --access public --tag $RELEASE_TAG
         env:
