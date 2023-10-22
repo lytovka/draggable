@@ -29,7 +29,6 @@ let newVersion;
 // The current release is a pre-release
 if (workflowType === "pre-release") {
   const parsedVersion = semver.parse(currentVersion);
-  console.log(parsedVersion);
   if (parsedVersion && parsedVersion.prerelease.length > 0) {
     // Increment the prerelease identifier based on desired version type
     newVersion = semver.inc(
