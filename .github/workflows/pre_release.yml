@@ -1,0 +1,88 @@
+name: Release to npm registry
+on:
+  workflow_dispatch:
+    inputs:
+      pre-release-type:
+        type: choice
+        description: Pre-release type
+        options:
+          - patch
+          - minor
+          - major
+
+jobs:
+  pre-release:
+    name: Pre-release
+    runs-on: ubuntu-latest
+    concurrency:
+      group: ${{ github.workflow }}-release
+      cancel-in-progress: true
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      
+      - name: Get Node version from .nvmrc
+        run: echo NVMRC=`cat .nvmrc` >> $GITHUB_ENV
+      
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          registry-url: https://registry.npmjs.org/
+          node-version: ${{ env.NVMRC }}
+     
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Build project
+        run: npm run build
+
+      - name: Determine new version 
+        run: |
+          echo "NEW_VERSION=$(node -p ./scripts/ci/newVersion.js pre-release ${{ github.event.inputs.release-type }})"
+          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
+          echo "RELEASE_TAG=beta" >> $GITHUB_ENV
+
+      - name: Publish to npm registry
+        run: |
+          # update to the new version locally
+          npm version --no-git-tag-version $NEW_VERSION
+          # publish package
+          npm publish --access public --tag $RELEASE_TAG
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Create chore pre-release message
+        id: chore-pre-release-commit-message
+        run: |
+          commit_message_type="chore(pre-release)"
+          commit_message_content="bump project to $NEW_VERSION"
+          echo "commit_message=$commit_message_type: $commit_message_content" >> $GITHUB_OUTPUT
+
+      - name: Create pre-release branch, commit files and create 
+        id: chore-pre-release-branch
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -b chore/pre-release-$NEW_VERSION
+          git add package.json package-lock.json
+          git commit -m "${{ steps.chore-pre-release-commit-message.outputs.commit_message }}"
+          git push origin HEAD
+      
+      - name: Create git tag for the release
+        run: |
+          git tag $NEW_VERSION
+          git push origin $NEW_VERSION
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create a pull request
+        run: >-
+          gh pr create \
+            --base main \
+            --title "${{ steps.chore-pre-release-commit-message.outputs.commit_message }}" \
+            --body "This PR retroactively updates package to the most recently published version: $NEW_VERSION."
+        env:
+          GIT
