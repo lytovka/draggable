@@ -24,14 +24,15 @@ jobs:
         with:
           fetch-depth: 0
       
-      - name: Get Node version from .nvmrc
-        run: echo NVMRC=`cat .nvmrc` >> $GITHUB_ENV
+      - name: Retrieve Node version from .nvmrc
+        id: node-version
+        run: echo "version=$(cat .nvmrc)" >> $GITHUB_OUTPUT
       
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
           registry-url: https://registry.npmjs.org/
-          node-version: ${{ env.NVMRC }}
+          node-version: ${{ steps.node-version.outputs.version }}
      
       - name: Install dependencies
         run: npm ci
@@ -43,15 +44,12 @@ jobs:
         run: |
           script_path="${{ github.workspace }}/scripts/ci/newVersion.cjs"
           echo "NEW_VERSION=$(node ${script_path} pre-release ${{ github.event.inputs.pre-release-type }})" >> $GITHUB_ENV
-          echo "GIT_TAG=$NEW_VERSION" >> $GITHUB_ENV
-          echo "NPM_TAG=beta" >> $GITHUB_ENV
-
       - name: Publish to npm registry
         run: |
           # update to the new version locally
           npm version --no-git-tag-version $NEW_VERSION
           # publish package
-          npm publish --access public --tag $NPM_TAG
+          npm publish --access public --tag "beta"
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
@@ -67,24 +65,29 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git checkout -b chore/pre-release-$NEW_VERSION
+
+          branch_name="chore/pre-release-$NEW_VERSION"
+          git checkout -b "$branch_name"
+
           git add package.json package-lock.json
           git commit -m "${{ steps.chore-pre-release-commit-message.outputs.commit_message }}"
-          git push origin HEAD
+          git push --set-upstream origin "$branch_name"
       
       - name: Create git tag for the release
+        id: create-git-tag
         run: |
-          git tag $GIT_TAG
-          git push origin $GIT_TAG
+          echo "git_tag=v$NEW_VERSION" >> $GITHUB_OUTPUT
+          git tag $git_tag
+          git push origin $git_tag
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create a pull request
         run: >-
           gh pr create \
-            --base main \
-            --title "${{ steps.chore-pre-release-commit-message.outputs.commit_message }}" \
-            --body "This PR retroactively updates package to the most recently published version: $NEW_VERSION."
+          --base main \
+          --title "${{ steps.chore-pre-release-commit-message.outputs.commit_message }}" \
+          --body "## :crown: Automated PR\n\nThis PR retroactively updates package to the most recently published version: $NEW_VERSION."
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -94,10 +97,10 @@ jobs:
     steps:
       - name: Create GitHub release
         run: >-
-          gh release create $GIT_TAG \
-            --target main \
+          gh release create ${{ steps.create-git-tag.outputs.git-tag }} \
+            --target "main" \
             --prerelease \
-            --title "$GIT_TAG" \
+            --title ${{ steps.create-git-tag.outputs.git-tag }} \
             --notes "This is a test pre-release."
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
