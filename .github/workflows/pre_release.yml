@@ -43,14 +43,15 @@ jobs:
         run: |
           script_path="${{ github.workspace }}/scripts/ci/newVersion.cjs"
           echo "NEW_VERSION=$(node ${script_path} pre-release ${{ github.event.inputs.pre-release-type }})" >> $GITHUB_ENV
-          echo "RELEASE_TAG=beta" >> $GITHUB_ENV
+          echo "GIT_TAG=$NEW_VERSION" >> $GITHUB_ENV
+          echo "NPM_TAG=beta" >> $GITHUB_ENV
 
       - name: Publish to npm registry
         run: |
           # update to the new version locally
           npm version --no-git-tag-version $NEW_VERSION
           # publish package
-          npm publish --access public --tag $RELEASE_TAG
+          npm publish --access public --tag $NPM_TAG
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
@@ -73,8 +74,8 @@ jobs:
       
       - name: Create git tag for the release
         run: |
-          git tag $NEW_VERSION
-          git push origin $NEW_VERSION
+          git tag $GIT_TAG
+          git push origin $GIT_TAG
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -86,3 +87,15 @@ jobs:
             --body "This PR retroactively updates package to the most recently published version: $NEW_VERSION."
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  github-release:
+    needs: pre-release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create GitHub release
+        run: >-
+          gh release create $GIT_TAG \
+            --target main \
+            --prerelease \
+            --title "$GIT_TAG" \
+            --notes "This is a test pre-release."
