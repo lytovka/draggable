@@ -76,9 +76,9 @@ jobs:
       - name: Create git tag for the release
         id: create-git-tag
         run: |
-          echo "git_tag=v$NEW_VERSION" >> $GITHUB_OUTPUT
-          git tag $git_tag
-          git push origin $git_tag
+          echo "GIT_TAG=v$NEW_VERSION" >> $GITHUB_ENV
+          git tag $GIT_TAG
+          git push origin $GIT_TAG
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -97,10 +97,10 @@ jobs:
     steps:
       - name: Create GitHub release
         run: >-
-          gh release create ${{ steps.create-git-tag.outputs.git-tag }} \
+          gh release create $GIT_TAG \
             --target "main" \
             --prerelease \
-            --title ${{ steps.create-git-tag.outputs.git-tag }} \
+            --title $GIT_TAG \
             --notes "This is a test pre-release."
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
