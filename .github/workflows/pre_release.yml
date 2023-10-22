@@ -1,4 +1,4 @@
-name: Release to npm registry
+name: Pre-release to npm registry
 on:
   workflow_dispatch:
     inputs:
