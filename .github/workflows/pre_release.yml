@@ -41,7 +41,7 @@ jobs:
 
       - name: Determine new version 
         run: |
-          echo "NEW_VERSION=$(node -p ./scripts/ci/newVersion.js pre-release ${{ github.event.inputs.release-type }})"
+          echo "NEW_VERSION=$(node -p ./scripts/ci/newVersion.js pre-release ${{ github.event.inputs.pre-release-type }})"
           echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
           echo "RELEASE_TAG=beta" >> $GITHUB_ENV
 
@@ -85,4 +85,4 @@ jobs:
             --title "${{ steps.chore-pre-release-commit-message.outputs.commit_message }}" \
             --body "This PR retroactively updates package to the most recently published version: $NEW_VERSION."
         env:
-          GIT
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
