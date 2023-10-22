@@ -1,6 +1,6 @@
 {
   "name": "@lytovka/draggable",
-  "version": "0.0.8-beta.0",
+  "version": "0.0.10-beta.1",
   "description": "Responsive draggable component that calculates offsets as percentages, which ensures consistent positioning across screen sizes.",
   "keywords": [
     "react",
