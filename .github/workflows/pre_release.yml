@@ -41,7 +41,7 @@ jobs:
 
       - name: Determine new version 
         run: |
-          script_path="${GITHUB_WORKSPACE}/scripts/ci/newVersion.js"
+          script_path="${{ github.workspace }}/scripts/ci/newVersion.js"
           echo "NEW_VERSION=$(node -p ${script_path} pre-release ${{ github.event.inputs.pre-release-type }})" >> $GITHUB_ENV
           echo "RELEASE_TAG=beta" >> $GITHUB_ENV
 
