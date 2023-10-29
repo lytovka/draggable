@@ -83,11 +83,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create a pull request
-        run: >-
-          gh pr create \
-          --base "main" \
-          --title "${{ steps.chore-pre-release-commit-message.outputs.commit_message }}" \
-          --body "Automated PR. This PR retroactively updates package to the most recently published version: $NEW_VERSION."
+        run: |
+          gh pr create --base "main" --title "${{ steps.chore-pre-release-commit-message.outputs.commit_message }}" --body "Automated PR. This PR retroactively updates package to the most recently published version: \`$NEW_VERSION\`."
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -96,11 +93,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Create GitHub release
-        run: >-
-          gh release create $GIT_TAG \
-            --target "main" \
-            --prerelease \
-            --title $GIT_TAG \
-            --notes "This is a test pre-release."
+        run: gh release create $GIT_TAG --target "main" --prerelease --title $GIT_TAG --notes "This is a test pre-release."
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
