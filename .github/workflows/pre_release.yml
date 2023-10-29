@@ -57,7 +57,7 @@ jobs:
         id: chore-pre-release-commit-message
         run: |
           commit_message_type="chore(pre-release)"
-          commit_message_content="bump project to $NEW_VERSION"
+          commit_message_content="bump project to v$NEW_VERSION"
           echo "commit_message=$commit_message_type: $commit_message_content" >> $GITHUB_OUTPUT
 
       - name: Create pre-release branch, commit files and create 
