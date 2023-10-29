@@ -92,6 +92,11 @@ jobs:
     needs: pre-release
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
       - name: Create GitHub release
         run: gh release create $GIT_TAG --target "main" --prerelease --title $GIT_TAG --notes "This is a test pre-release."
         env:
