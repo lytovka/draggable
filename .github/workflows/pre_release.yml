@@ -87,7 +87,7 @@ jobs:
           gh pr create \
           --base "main" \
           --title "${{ steps.chore-pre-release-commit-message.outputs.commit_message }}" \
-          --body ":crown: Automated PR. This PR retroactively updates package to the most recently published version: \`$NEW_VERSION\`."
+          --body "Automated PR. This PR retroactively updates package to the most recently published version: $NEW_VERSION."
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
