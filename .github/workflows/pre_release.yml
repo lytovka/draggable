@@ -17,6 +17,8 @@ jobs:
     concurrency:
       group: ${{ github.workflow }}-release
       cancel-in-progress: true
+    outputs:
+      git_tag: ${{ steps.create-git-tag.outputs.git_tag }}
     
     steps:
       - name: Checkout
