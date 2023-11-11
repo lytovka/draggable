@@ -80,6 +80,7 @@ jobs:
         run: >-
           gh pr create \
             --base main \
+            --label "release"
             --title "${{ steps.chore-release-commit-message.outputs.commit_message }}" \
             --body "This PR retroactively updates package to the most recently published version: $NEW_VERSION."
         env:

@@ -1,0 +1,17 @@
+name: Release Changelog
+description: Runs changelog tasks for a release
+outputs:
+  changelog:
+    value: ${{ steps.changelog.outputs.changelog }}
+    description: Generated changelog
+
+runs:
+  using: composite
+
+steps:
+  - name: Checkout repo
+    uses: actions/checkout@v4
+    with:
+      fetch-depth: 0
+
+  - name:
