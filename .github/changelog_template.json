@@ -1,0 +1,55 @@
+{
+  "template": "${{CHANGELOG}}\n\n<details>\n<summary>Uncategorized</summary>\n\n${{UNCATEGORIZED}}\n</details>",
+  "pr_template": "- ${{TITLE}} by @${{AUTHOR}} in [#${{NUMBER}}](https://github.com/lytovka/draggable/pull/${{NUMBER}})",
+  "categories": [
+    {
+      "title": "## 🚀 Features",
+      "rules": [
+        {
+          "on_property": "title",
+          "pattern": "^feat.*",
+          "flags": "gui"
+        }
+      ]
+    },
+    {
+      "title": "## 🐛 Fixes",
+      "rules": [
+        {
+          "on_property": "title",
+          "pattern": "^fix.*",
+          "flags": "gui"
+        }
+      ]
+    },
+    {
+      "title": "## 🧹 Chores & Maintenance",
+      "exclude_labels": [
+        "dependencies"
+      ],
+      "rules": [
+        {
+          "on_property": "title",
+          "pattern": "^chore.*",
+          "flags": "gui"
+        }
+      ]
+    },
+    {
+      "title": "## 🛠️ CI",
+      "rules": [
+        {
+          "on_property": "title",
+          "pattern": "^ci.*",
+          "flags": "gui"
+        }
+      ]
+    },
+    {
+      "title": "## 📦 Dependencies",
+      "labels": ["dependencies"]
+    }
+  ],
+  "ignore_labels": ["release"]  
+}
+

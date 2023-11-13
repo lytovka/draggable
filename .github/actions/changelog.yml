@@ -1,0 +1,48 @@
+name: Release Changelog
+description: Runs changelog tasks for a release
+inputs: 
+  release-type: 
+    description: release or pre-release
+    required: true
+  github-token:
+    description: github github
+    required: true
+outputs:
+  build-changelog:
+    value: ${{ steps.build-changelog.outputs.changelog }}
+    description: Generated changelog
+
+runs:
+  using: composite
+
+steps:
+  - name: Checkout repo
+    uses: actions/checkout@v4
+    with:
+      fetch-depth: 0
+
+  - name: Get latest git tag 
+    if: ${{ inputs.release-type == 'pre-release'}}
+    id: pre-release-git-tag
+    runs: |
+      echo "tag=$(git describe --tags --abbrev=0 `git rev-list --tags --max-count=1`" >> GITHUB_OUTPUT
+
+  - name: Get latest git tag
+    if: ${{ inputs.release-type == 'release'}}
+    id: release-git-tag
+    runs: |
+      echo "tag=$(git describe --tags --exclude \"*-beta*\" --abbrev=0 `git rev-list --tags --max-count=1`)" >> GITHUB_OUTPUT
+
+  - name: Build changelog
+    id: build-changelog
+    uses: mikepenz/release-changelog-builder-action@{latest-release}
+    with:
+      toTag: ${{ github.sha }}
+      fromTag: ${{ steps.release-git-tag.tag || steps.pre-release-git-tag.tag }}
+      owner: "lytovka"
+      repo: "draggable"
+      failOnError: true
+      configuration: .github/changelog_template.json
+      outputFile: .github/changelog.txt
+    env:
+      GITHUB_TOKEN: ${{ inputs.github-token }}
