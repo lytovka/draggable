@@ -1,5 +1,6 @@
 name: Release Changelog
 description: Runs changelog tasks for a release
+
 inputs: 
   release-type: 
     description: release or pre-release
@@ -7,6 +8,7 @@ inputs:
   github-token:
     description: github github
     required: true
+
 outputs:
   changelog:
     value: ${{ steps.build-changelog.outputs.changelog }}
@@ -24,13 +26,13 @@ runs:
     - name: Get latest git tag 
       if: ${{ inputs.release-type == 'pre-release'}}
       id: pre-release-git-tag
-      runs: |
+      run: |
         echo "tag=$(git describe --tags --abbrev=0 `git rev-list --tags --max-count=1`" >> GITHUB_OUTPUT
 
     - name: Get latest git tag
       if: ${{ inputs.release-type == 'release'}}
       id: release-git-tag
-      runs: |
+      run: |
         echo "tag=$(git describe --tags --exclude \"*-beta*\" --abbrev=0 `git rev-list --tags --max-count=1`)" >> GITHUB_OUTPUT
 
     - name: Build changelog
