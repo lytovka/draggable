@@ -29,7 +29,7 @@ jobs:
     
       - name: Generate changelog
         id: generated-changelog
-        uses: .github/actions/changelog
+        uses: ./.github/actions/changelog
         with:
           release-type: pre-release
           github-token: ${{ secrets.GITHUB_TOKEN }} 
