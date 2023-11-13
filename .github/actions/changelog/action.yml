@@ -33,14 +33,14 @@ runs:
       id: pre-release-git-tag
       shell: bash
       run: |
-        echo "tag=$(git describe --tags --abbrev=0 `git rev-list --tags --max-count=1`" >> GITHUB_OUTPUT
+        echo "tag=$(git describe --tags --abbrev=0 `git rev-list --tags --max-count=1`" >> $GITHUB_OUTPUT
 
     - name: Get latest git tag
       if: ${{ inputs.release-type == 'release'}}
       id: release-git-tag
       shell: bash
       run: |
-        echo "tag=$(git describe --tags --exclude \"*-beta*\" --abbrev=0 `git rev-list --tags --max-count=1`)" >> GITHUB_OUTPUT
+        echo "tag=$(git describe --tags --exclude \"*-beta*\" --abbrev=0 `git rev-list --tags --max-count=1`)" >> $GITHUB_OUTPUT
 
     - name: Build changelog
       id: build-changelog
