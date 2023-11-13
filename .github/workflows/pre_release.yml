@@ -29,16 +29,16 @@ jobs:
     
       - name: Generate changelog
         id: generated-changelog
-        uses: ./.github/actions/changelog
+        uses: .github/actions/changelog
         with:
-          release-type: pre-release-type
+          release-type: pre-release
           github-token: ${{ secrets.GITHUB_TOKEN }} 
 
       - name: Retrieve Node version from .nvmrc
         id: node-version
         run: echo "version=$(cat .nvmrc)" >> $GITHUB_OUTPUT
       
-      - name: Setup Node:
+      - name: Setup Node
         uses: actions/setup-node@v3
         with:
           registry-url: https://registry.npmjs.org/
@@ -110,7 +110,7 @@ jobs:
 
       - name: Create GitHub release
         run: |
-          GIT_TAG="${{ needs.pre-release.outputs.git_tag }}"
-          gh release create $GIT_TAG --target "main" --prerelease --title $GIT_TAG --notes "${{ steps.generated-changelog.outputs.changelog }}"
+          echo "GIT_TAG=${{ needs.pre-release.outputs.git_tag }}"
+          gh release create $GIT_TAG --target main --prerelease --title "$GIT_TAG" --notes-file .github/changelog.txt
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
