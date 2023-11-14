@@ -30,24 +30,24 @@ runs:
 
     - name: Get latest git tag 
       if: ${{ inputs.release-type == 'pre-release'}}
-      id: pre-release-git-tag
+      id: previous-pre-release-git-tag
       shell: bash
       run: |
         echo "tag=$(git describe --tags --abbrev=0 `git rev-list --tags --max-count=1`)" >> $GITHUB_OUTPUT
 
     - name: Get latest git tag
       if: ${{ inputs.release-type == 'release'}}
-      id: release-git-tag
+      id: previous-release-git-tag
       shell: bash
       run: |
         echo "tag=$(git describe --tags --exclude \"*-beta*\" --abbrev=0 `git rev-list --tags --max-count=1`)" >> $GITHUB_OUTPUT
 
     - name: Build changelog
       id: build-changelog
-      uses: mikepenz/release-changelog-builder-action@v4
+      uses: mikepenz/release-changelog-builder-action@v3.6.0
       with:
         toTag: ${{ github.sha }}
-        fromTag: ${{ steps.release-git-tag.tag || steps.pre-release-git-tag.tag }}
+        fromTag: ${{ steps.previous-release-git-tag.tag || steps.previous-pre-release-git-tag.tag }}
         owner: "lytovka"
         repo: "draggable"
         failOnError: true
