@@ -30,6 +30,7 @@ runs:
 
     - name: Check for user input
       if: ${{ inputs.release-type != 'pre-release' && inputs.release-type != 'release'}}
+      shell: bash
       run: |
         echo "Improper release-type input: ${{ inputs.release-type }}"
         exit 1
