@@ -93,25 +93,15 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Create a pull request
+      - name: Create pre-release pull request
         run: |
           gh pr create --base "main" --label "pre-release" --title "${{ steps.chore-pre-release-commit-message.outputs.commit_message }}" --body "Automated PR. This PR retroactively updates package to the most recently published version: \`$NEW_VERSION\`."
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  github-release:
-    needs: pre-release
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
       - name: Create GitHub release
         run: |
-          GIT_TAG=${{ needs.pre-release.outputs.git_tag }}
-          CHANGELOG=${{ needs.pre-release.outputs.changelog }}
-          gh release create $GIT_TAG --target main --prerelease --title "$GIT_TAG" --verify-tag --notes "$CHANGELOG"
+          GIT_TAG=${{ steps.create-git-tag.outputs.git_tag }}
+          gh release create $GIT_TAG --target main --prerelease --title "$GIT_TAG" --verify-tag --notes-file .github/changelog.txt
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
