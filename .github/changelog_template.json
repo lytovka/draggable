@@ -50,6 +50,6 @@
       "labels": ["dependencies"]
     }
   ],
-  "ignore_labels": ["release"]  
+  "ignore_labels": ["release", "pre-release"]  
 }
 
