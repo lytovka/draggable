@@ -25,5 +25,5 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }} 
       - name: Print changelog
         run: |
-          echo "${{ steps.generated-changelog.outputs.changelog }}"
+          echo "$(cat .github/changelog.txt)" 
 
