@@ -28,6 +28,12 @@ runs:
       run: |
         touch .github/changelog.txt
 
+    - name: Check for user input
+      if: ${{ inputs.release-type != 'pre-release' && inputs.release-type != 'release'}}
+      run: |
+        echo "Improper release-type input: ${{ inputs.release-type }}"
+        exit 1
+
     - name: Get latest git tag 
       if: ${{ inputs.release-type == 'pre-release'}}
       id: previous-pre-release-git-tag
@@ -43,6 +49,12 @@ runs:
       run: |
         echo "tag=$(git describe --tags --exclude \"*-beta*\" --abbrev=0 `git rev-list --tags --max-count=1`)"
         echo "$tag" >> $GITHUB_OUTPUT
+
+    - name: Print potential tags
+      shell: bash
+      run: |
+        echo "release tag: ${{ steps.previous-release-git-tag.outputs.tag }}"
+        echo "pre-release tag: ${{ steps.previous-pre-release-git-tag.outputs.tag }}"
 
     - name: Build changelog
       id: build-changelog
