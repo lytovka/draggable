@@ -40,7 +40,7 @@ runs:
       id: previous-pre-release-git-tag
       shell: bash
       run: |
-        echo "tag=$(git describe --tags --abbrev=0 `git rev-list --tags --max-count=1`)"
+        tag=$(git describe --tags --abbrev=0 `git rev-list --tags --max-count=1`)
         echo "$tag" >> $GITHUB_OUTPUT
 
     - name: Get latest git tag
@@ -48,7 +48,7 @@ runs:
       id: previous-release-git-tag
       shell: bash
       run: |
-        echo "tag=$(git describe --tags --exclude \"*-beta*\" --abbrev=0 `git rev-list --tags --max-count=1`)"
+        tag=$(git describe --tags --exclude \"*-beta*\" --abbrev=0 `git rev-list --tags --max-count=1`)
         echo "$tag" >> $GITHUB_OUTPUT
 
     - name: Print potential tags
