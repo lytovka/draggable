@@ -62,7 +62,7 @@ runs:
       uses: mikepenz/release-changelog-builder-action@v3.6.0
       with:
         toTag: ${{ github.sha }}
-        fromTag: ${{ steps.previous-release-git-tag.tag || steps.previous-pre-release-git-tag.tag }}
+        fromTag: ${{ steps.previous-release-git-tag.outputs.tag || steps.previous-pre-release-git-tag.outputs.tag }}
         owner: "lytovka"
         repo: "draggable"
         failOnError: true
