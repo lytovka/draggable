@@ -9,8 +9,7 @@ jobs:
       group: ${{ github.workflow }}-changelog
       cancel-in-progress: true
     outputs:
-      git_tag: ${{ steps.create-git-tag.outputs.git_tag }}
-      changelog: ${{ steps.changelog.outputs.changelog }}
+      changelog: ${{ steps.generated-changelog.outputs.changelog }}
     
     steps:
       - name: Checkout
@@ -26,5 +25,5 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }} 
       - name: Print changelog
         run: |
-          echo "Changelog:\n\n${{ steps.changelog.outputs.changelog }}"
+          echo "Changelog:\n\n${{ steps.generated-changelog.outputs.changelog }}"
 
