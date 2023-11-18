@@ -1,0 +1,30 @@
+name: Print Changelog 
+on: workflow_dispatch:
+
+jobs:
+  changelog:
+    name: Print changelog 
+    runs-on: ubuntu-latest
+    concurrency:
+      group: ${{ github.workflow }}-changelog
+      cancel-in-progress: true
+    outputs:
+      git_tag: ${{ steps.create-git-tag.outputs.git_tag }}
+      changelog: ${{ steps.changelog.outputs.changelog }}
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+    
+      - name: Generate changelog
+        id: generated-changelog
+        uses: ./.github/actions/changelog
+        with:
+          release-type: pre-release
+          github-token: ${{ secrets.GITHUB_TOKEN }} 
+      - name: Print changelog
+        run: |
+          echo "Changelog:\n\n${{ steps.changelog.outputs.changelog }}"
+
