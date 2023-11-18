@@ -58,9 +58,8 @@ runs:
       env:
         GITHUB_TOKEN: ${{ inputs.github-token }}
 
-     - name: Write Changelog to Summary
-          shell: bash
-          run: |
-            echo "# New `draggable` ${{ github.inputs.release-type }}" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "$(cat .github/changelog.txt)" >> $GITHUB_STEP_SUMMARY
+    - name: Write Changelog to Summary
+      shell: bash
+      run: |
+        echo "# New `draggable` ${{ inputs.release-type }}\n" >> $GITHUB_STEP_SUMMARY
+        echo "$(cat .github/changelog.txt)" >> $GITHUB_STEP_SUMMARY
