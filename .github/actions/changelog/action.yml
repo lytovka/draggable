@@ -41,7 +41,7 @@ runs:
       shell: bash
       run: |
         tag=$(git describe --tags --abbrev=0 `git rev-list --tags --max-count=1`)
-        echo "$tag" >> $GITHUB_OUTPUT
+        echo "tag=$tag" >> $GITHUB_OUTPUT
 
     - name: Get latest git tag
       if: ${{ inputs.release-type == 'release'}}
@@ -49,7 +49,7 @@ runs:
       shell: bash
       run: |
         tag=$(git describe --tags --exclude \"*-beta*\" --abbrev=0 `git rev-list --tags --max-count=1`)
-        echo "$tag" >> $GITHUB_OUTPUT
+        echo "tag=$tag" >> $GITHUB_OUTPUT
 
     - name: Print potential tags
       shell: bash
