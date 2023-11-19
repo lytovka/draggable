@@ -29,7 +29,7 @@ jobs:
         id: generated-changelog
         uses: ./.github/actions/changelog
         with:
-          release-type: ${{ inputs.release-type }} 
+          release-type: ${{ github.event.inputs.release-type }} 
           github-token: ${{ secrets.GITHUB_TOKEN }} 
       - name: Print changelog
         run: |
