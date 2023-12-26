@@ -128,8 +128,7 @@ jobs:
         run: |
           release_type=${{ github.event.inputs.release-type }}
           GIT_TAG=${{ steps.create-git-tag.outputs.git_tag }}
-          RELEASE_ARGS="--target main --title \"$GIT_TAG\" --verify-tag --notes-file .github/changelog.txt
-"
+          RELEASE_ARGS="--target main --title \"$GIT_TAG\" --verify-tag --notes-file .github/changelog.txt"
           if[ $release_type == "pre-release" ]; then
             RELEASE_ARGS="$RELEASE_ARGS --prerelease"
           fi
