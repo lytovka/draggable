@@ -64,7 +64,7 @@ jobs:
           echo "NEW_VERSION=$(node ${script_path} ${release_type} ${version_type})" >> $GITHUB_ENV
 
       - name: Publish to npm registry (latest tag)
-        if: ${{ github.event.inputs.release-type === "release" }}
+        if: ${{ github.event.inputs.release-type == "release" }}
         run: |
           # update to the new version locally
           npm version --no-git-tag-version $NEW_VERSION
@@ -74,7 +74,7 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
             
       - name: Publish to npm registry (beta tag)
-        if: ${{ github.event.inputs.release-type === "pre-release" }}
+        if: ${{ github.event.inputs.release-type == "pre-release" }}
         run: |
           # update to the new version locally
           npm version --no-git-tag-version $NEW_VERSION
