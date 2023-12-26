@@ -6,6 +6,12 @@ on:
         type: choice
         description: Release type
         options:
+          - pre-release
+          - release
+      version-type:
+        type: choice
+        description: Version type
+        options:
           - patch
           - minor
           - major
@@ -17,21 +23,32 @@ jobs:
     concurrency:
       group: ${{ github.workflow }}-release
       cancel-in-progress: true
+    outputs:
+      git_tag: ${{ steps.create-git-tag.outputs.git_tag }}
+      changelog: ${{ steps.generated-changelog.outputs.changelog }}
     
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      
-      - name: Get Node version from .nvmrc
-        run: echo NVMRC=`cat .nvmrc` >> $GITHUB_ENV
+    
+      - name: Generate changelog
+        id: generated-changelog
+        uses: ./.github/actions/changelog
+        with:
+          release-type: ${{ github.event.inputs.release-type }} 
+          github-token: ${{ secrets.GITHUB_TOKEN }} 
+
+      - name: Retrieve Node version from .nvmrc
+        id: node-version
+        run: echo "version=$(cat .nvmrc)" >> $GITHUB_OUTPUT
       
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
           registry-url: https://registry.npmjs.org/
-          node-version: ${{ env.NVMRC }}
+          node-version: ${{ steps.node-version.outputs.version }}
      
       - name: Install dependencies
         run: npm ci
@@ -39,49 +56,84 @@ jobs:
       - name: Build project
         run: npm run build
 
-      - name: Bump release version
+      - name: Determine new version 
         run: |
-          NEW_VERSION=$(npm version $RELEASE_TYPE --no-git-tag-version)
-          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
-          echo "RELEASE_TAG=latest" >> $GITHUB_ENV
+          script_path="${{ github.workspace }}/scripts/ci/newVersion.cjs"
+          release_type="${{ github.event.inputs.release-type }}"
+          version_type="${{ github.event.inputs.version-type }}"
+          echo "NEW_VERSION=$(node ${script_path} ${release_type} ${version_type})" >> $GITHUB_ENV
+
+      - name: Publish to npm registry (latest tag)
+        if: ${{ github.event.inputs.release-type === "release" }}
+        run: |
+          # update to the new version locally
+          npm version --no-git-tag-version $NEW_VERSION
+          # publish package
+          npm publish --access public --tag "latest"
         env:
-          RELEASE_TYPE: ${{ github.event.inputs.release-type }}
-        
-      - name: Publish to npm registry
-        run: npm publish --access public --tag $RELEASE_TAG
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+            
+      - name: Publish to npm registry (beta tag)
+        if: ${{ github.event.inputs.release-type === "pre-release" }}
+        run: |
+          # update to the new version locally
+          npm version --no-git-tag-version $NEW_VERSION
+          # publish package
+          npm publish --access public --tag "beta"
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Create chore release message
         id: chore-release-commit-message
         run: |
-          commit_message_type="chore(release)"
-          commit_message_content="bump project to $NEW_VERSION"
+          release_type="${{ github.event.inputs.release-type }}"
+          commit_message_type="chore($release_type)"
+          commit_message_content="bump project to v$NEW_VERSION"
           echo "commit_message=$commit_message_type: $commit_message_content" >> $GITHUB_OUTPUT
 
-      - name: Create release branch, commit files and create 
+      - name: Create release branch, commit and push files
         id: chore-release-branch
         run: |
+          release_type="${{ github.event.inputs.release-type }}"
+
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git checkout -b chore/release-$NEW_VERSION
+
+          branch_name="chore/${release_type}-${NEW_VERSION}"
+
+          git checkout -b "$branch_name"
+
           git add package.json package-lock.json
           git commit -m "${{ steps.chore-release-commit-message.outputs.commit_message }}"
-          git push origin HEAD
+          git push --set-upstream origin "$branch_name"
       
-      - name: Create Git tag for the release
+      - name: Create git tag for the release
+        id: create-git-tag
         run: |
-          git tag $NEW_VERSION
-          git push origin $NEW_VERSION
+          GIT_TAG=v$NEW_VERSION
+          git tag $GIT_TAG
+          git push origin $GIT_TAG
+          echo "git_tag=$GIT_TAG" >> $GITHUB_OUTPUT
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Create a pull request
-        run: >-
-          gh pr create \
-            --base main \
-            --label "release"
-            --title "${{ steps.chore-release-commit-message.outputs.commit_message }}" \
-            --body "This PR retroactively updates package to the most recently published version: $NEW_VERSION."
+      - name: Create release pull request
+        run: |
+          release_type=${{ github.event.inputs.release-type }}
+          gh pr create --base "main" --label "$release_type" --title "${{ steps.chore-release-commit-message.outputs.commit_message }}" --body "Automated PR. This PR retroactively updates package to the most recently published version: \`$NEW_VERSION\`."
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create GitHub release
+        run: |
+          release_type=${{ github.event.inputs.release-type }}
+          GIT_TAG=${{ steps.create-git-tag.outputs.git_tag }}
+          RELEASE_ARGS="--target main --title \"$GIT_TAG\" --verify-tag --notes-file .github/changelog.txt
+"
+          if[ $release_type == "pre-release" ]; then
+            RELEASE_ARGS="$RELEASE_ARGS --prerelease"
+          fi
+
+          gh release create $GIT_TAG $RELEASE_ARGS 
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
