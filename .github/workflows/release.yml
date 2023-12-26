@@ -64,7 +64,7 @@ jobs:
           echo "NEW_VERSION=$(node ${script_path} ${release_type} ${version_type})" >> $GITHUB_ENV
 
       - name: Publish to npm registry (latest tag)
-        if: ${{ github.event.inputs.release-type === "release"}}
+        if: ${{ github.event.inputs.release-type === "release" }}
         run: |
           # update to the new version locally
           npm version --no-git-tag-version $NEW_VERSION
@@ -74,7 +74,7 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
             
       - name: Publish to npm registry (beta tag)
-        if: ${{ github.event.inputs.release-type === "pre-release"}}
+        if: ${{ github.event.inputs.release-type === "pre-release" }}
         run: |
           # update to the new version locally
           npm version --no-git-tag-version $NEW_VERSION
@@ -87,25 +87,19 @@ jobs:
         id: chore-release-commit-message
         run: |
           release_type="${{ github.event.inputs.release-type }}"
-          if [ "$release_type" == "release" ]; then
-            commit_message_type="chore(release)"
-          else
-            commit_message_type="chore(pre-release)"
-          fi
+          commit_message_type="chore($release_type)"
           commit_message_content="bump project to v$NEW_VERSION"
           echo "commit_message=$commit_message_type: $commit_message_content" >> $GITHUB_OUTPUT
 
       - name: Create release branch, commit files and create 
         id: chore-release-branch
         run: |
+          release_type="${{ github.event.inputs.release-type }}"
+
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-          if [ "$release_type" == "release" ]; then
-            branch_name="chore/release-$NEW_VERSION"
-          else
-            branch_name="chore/pre-release-$NEW_VERSION"
-          fi
+          branch_name="chore/${release_type}-${NEW_VERSION}"
 
           git checkout -b "$branch_name"
 
