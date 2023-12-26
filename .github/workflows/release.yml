@@ -91,7 +91,7 @@ jobs:
           commit_message_content="bump project to v$NEW_VERSION"
           echo "commit_message=$commit_message_type: $commit_message_content" >> $GITHUB_OUTPUT
 
-      - name: Create release branch, commit files and create 
+      - name: Create release branch, commit and push files
         id: chore-release-branch
         run: |
           release_type="${{ github.event.inputs.release-type }}"
