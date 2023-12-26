@@ -1,18 +1,24 @@
-name: Pre-release to npm registry
+name: Release to npm registry
 on:
   workflow_dispatch:
     inputs:
-      pre-release-type:
+      release-type:
         type: choice
-        description: Pre-release type
+        description: Release type
+        options:
+          - pre-release
+          - release
+      version-type:
+        type: choice
+        description: Version type
         options:
           - patch
           - minor
           - major
 
 jobs:
-  pre-release:
-    name: Pre-release
+  release:
+    name: Release
     runs-on: ubuntu-latest
     concurrency:
       group: ${{ github.workflow }}-release
@@ -31,7 +37,7 @@ jobs:
         id: generated-changelog
         uses: ./.github/actions/changelog
         with:
-          release-type: pre-release
+          release-type: ${{ github.event.inputs.release-type }} 
           github-token: ${{ secrets.GITHUB_TOKEN }} 
 
       - name: Retrieve Node version from .nvmrc
@@ -53,8 +59,22 @@ jobs:
       - name: Determine new version 
         run: |
           script_path="${{ github.workspace }}/scripts/ci/newVersion.cjs"
-          echo "NEW_VERSION=$(node ${script_path} pre-release ${{ github.event.inputs.pre-release-type }})" >> $GITHUB_ENV
-      - name: Publish to npm registry
+          release_type="${{ github.event.inputs.release-type }}"
+          version_type="${{ github.event.inputs.version-type }}"
+          echo "NEW_VERSION=$(node ${script_path} ${release_type} ${version_type})" >> $GITHUB_ENV
+
+      - name: Publish to npm registry (latest tag)
+        if: ${{ github.event.inputs.release-type === "release"}}
+        run: |
+          # update to the new version locally
+          npm version --no-git-tag-version $NEW_VERSION
+          # publish package
+          npm publish --access public --tag "latest"
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+            
+      - name: Publish to npm registry (beta tag)
+        if: ${{ github.event.inputs.release-type === "pre-release"}}
         run: |
           # update to the new version locally
           npm version --no-git-tag-version $NEW_VERSION
@@ -63,24 +83,34 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Create chore pre-release message
-        id: chore-pre-release-commit-message
+      - name: Create chore release message
+        id: chore-release-commit-message
         run: |
-          commit_message_type="chore(pre-release)"
+          release_type="${{ github.event.inputs.release-type }}"
+          if [ "$release_type" == "release" ]; then
+            commit_message_type="chore(release)"
+          else
+            commit_message_type="chore(pre-release)"
+          fi
           commit_message_content="bump project to v$NEW_VERSION"
           echo "commit_message=$commit_message_type: $commit_message_content" >> $GITHUB_OUTPUT
 
-      - name: Create pre-release branch, commit files and create 
-        id: chore-pre-release-branch
+      - name: Create release branch, commit files and create 
+        id: chore-release-branch
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-          branch_name="chore/pre-release-$NEW_VERSION"
+          if [ "$release_type" == "release" ]; then
+            branch_name="chore/release-$NEW_VERSION"
+          else
+            branch_name="chore/pre-release-$NEW_VERSION"
+          fi
+
           git checkout -b "$branch_name"
 
           git add package.json package-lock.json
-          git commit -m "${{ steps.chore-pre-release-commit-message.outputs.commit_message }}"
+          git commit -m "${{ steps.chore-release-commit-message.outputs.commit_message }}"
           git push --set-upstream origin "$branch_name"
       
       - name: Create git tag for the release
@@ -93,15 +123,23 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Create pre-release pull request
+      - name: Create release pull request
         run: |
-          gh pr create --base "main" --label "pre-release" --title "${{ steps.chore-pre-release-commit-message.outputs.commit_message }}" --body "Automated PR. This PR retroactively updates package to the most recently published version: \`$NEW_VERSION\`."
+          release_type=${{ github.event.inputs.release-type }}
+          gh pr create --base "main" --label "$release_type" --title "${{ steps.chore-release-commit-message.outputs.commit_message }}" --body "Automated PR. This PR retroactively updates package to the most recently published version: \`$NEW_VERSION\`."
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create GitHub release
         run: |
+          release_type=${{ github.event.inputs.release-type }}
           GIT_TAG=${{ steps.create-git-tag.outputs.git_tag }}
-          gh release create $GIT_TAG --target main --prerelease --title "$GIT_TAG" --verify-tag --notes-file .github/changelog.txt
+          RELEASE_ARGS="--target main --title \"$GIT_TAG\" --verify-tag --notes-file .github/changelog.txt
+"
+          if[ $release_type == "pre-release" ]; then
+            RELEASE_ARGS="$RELEASE_ARGS --prerelease"
+          fi
+
+          gh release create $GIT_TAG $RELEASE_ARGS 
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
