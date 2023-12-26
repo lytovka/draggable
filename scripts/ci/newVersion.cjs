@@ -1,47 +1,38 @@
 const semver = require("semver")
 const packageJson = require("../../package.json")
 
-const workflowType = process.argv[2];
-const newReleaseType = process.argv[3];
+// Workflow types
+const RELEASE = "release"
+const PRE_RELEASE = "pre-release"
 
-if (!workflowType || !newReleaseType) {
-  console.error("One or more required args were missing:", {
-    workflowType,
-    newReleaseType,
-  });
+const currentWorkflowType = process.argv[2];
+const desiredReleaseType = process.argv[3];
+
+if (!semver.RELEASE_TYPES.includes(desiredReleaseType)) {
+  console.error("Invalid release type supplied:", desiredReleaseType);
   process.exit(1);
 }
 
-if (!semver.RELEASE_TYPES.includes(newReleaseType)) {
-  console.error("Improper release type supplied:", newReleaseType);
+if (![RELEASE, PRE_RELEASE].includes(currentWorkflowType)) {
+  console.error("Invalid workflow type supplied:", currentWorkflowType);
   process.exit(2);
-}
-
-if (workflowType !== "release" && workflowType !== "pre-release") {
-  console.error("Improper workflow type supplied:", workflowType);
-  process.exit(3);
 }
 
 const currentVersion = packageJson.version;
 
 let newVersion;
 
-// The current release is a pre-release
-if (workflowType === "pre-release") {
+if (currentWorkflowType === PRE_RELEASE) {
   const parsedVersion = semver.parse(currentVersion);
+
   if (parsedVersion && parsedVersion.prerelease.length > 0) {
-    // Increment the prerelease identifier based on desired version type
-    newVersion = semver.inc(
-      currentVersion,
-      `prerelease`,
-      "beta",
-      ++parsedVersion.prerelease[1],
-    );
+    const preReleaseIdentifier = parsedVersion.prerelease[1] + 1
+    newVersion = semver.inc(currentVersion, 'prerelease', "beta", preReleaseIdentifier);
   } else {
-    newVersion = semver.inc(currentVersion, `pre${newReleaseType}`, "beta");
+    newVersion = semver.inc(currentVersion, `pre${desiredReleaseType}`, "beta");
   }
 } else {
-  newVersion = semver.inc(currentVersion, newReleaseType);
+  newVersion = semver.inc(currentVersion, desiredReleaseType);
 }
 
 console.log(newVersion);
