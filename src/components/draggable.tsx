@@ -1,6 +1,5 @@
 import React, {
   useCallback,
-  useContext,
   useEffect,
   useRef,
   useState,
@@ -9,7 +8,6 @@ import type { PropsWithChildren } from "react";
 import type {
   DraggableComponentProps,
   DraggableItemStats,
-  DraggingContextType,
   Position,
 } from "./types";
 
@@ -19,26 +17,6 @@ const DEFAULT_HEIGHT = "90";
 const getPercentage = (value: number, max: number) => (value / max) * 100;
 const getPxValue = (value: number | string) => `${value}px`;
 const getPercentageValue = (value: number | string) => `${value}%`;
-
-export const DraggingContext = React.createContext<DraggingContextType>({
-  draggingItem: null,
-  setDraggingItem: () => {},
-});
-
-const useDragging = () => {
-  return useContext(DraggingContext);
-};
-
-export const DraggingProvider = ({ children }: PropsWithChildren) => {
-  const [draggingItem, setDraggingItem] = useState<string | null>(null);
-
-  return (
-    // eslint-disable-next-line
-    <DraggingContext.Provider value={{ draggingItem, setDraggingItem }}>
-      {children}
-    </DraggingContext.Provider>
-  );
-};
 
 export const DraggableComponent = ({
   id,
@@ -50,10 +28,10 @@ export const DraggableComponent = ({
   onDragMove,
   ...rest
 }: PropsWithChildren<DraggableComponentProps>) => {
-  const { draggingItem, setDraggingItem } = useDragging();
+  const [draggingItem, setDraggingItem] = useState<string | null>(null);
   const [currentPositionPercent, setCurrentPositionPercent] = useState<
-    Position
-  >(
+  Position
+>(
     initialPosition ? initialPosition : [0, 0],
   );
   const itemStats = useRef<DraggableItemStats>({
