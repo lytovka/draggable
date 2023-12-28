@@ -1,6 +1,6 @@
 import React, { useRef } from "react";
 import { createRoot } from "react-dom/client";
-import { DraggableComponent, DraggingProvider } from "./components";
+import { DraggableComponent} from "./components";
 
 const App = () => {
   const containerRef = useRef(null);
@@ -15,25 +15,23 @@ const App = () => {
         position: "relative",
       }}
     >
-      <DraggingProvider>
-        <DraggableComponent
-          id={`1`}
-          containerRef={containerRef}
-          initialPosition={[0, 0]}
-          style={{ width: 200, height: 200, background: "red" }}
-        >
-          <p>Hello!</p>
-          <p>Hello!</p>
-        </DraggableComponent>
-        <DraggableComponent
-          id={`2`}
-          containerRef={containerRef}
-          initialPosition={[10, 0]}
-          style={{ background: "green" }}
-        >
-          <p>hello!</p>
-        </DraggableComponent>
-      </DraggingProvider>
+      <DraggableComponent
+        id={`1`}
+        containerRef={containerRef}
+        initialPosition={[0, 0]}
+        style={{ width: 200, height: 200, background: "red" }}
+      >
+        <p>Hello!</p>
+        <p>Hello!</p>
+      </DraggableComponent>
+      <DraggableComponent
+        id={`2`}
+        containerRef={containerRef}
+        initialPosition={[10, 0]}
+        style={{ background: "green" }}
+      >
+        <p>hello!</p>
+      </DraggableComponent>
     </div>
   );
 };
