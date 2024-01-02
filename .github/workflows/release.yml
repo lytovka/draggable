@@ -123,8 +123,8 @@ jobs:
 
       - name: Checkout base branch and pull latest changes
         run: |
-          git checkout master
-          git pull origin master
+          git checkout main
+          git pull origin main
 
       - name: Create git tag for the release
         id: create-git-tag
