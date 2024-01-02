@@ -43,7 +43,7 @@ runs:
       id: previous-release-git-tag
       shell: bash
       run: |
-        tag=$(git describe --tags --exclude "*-beta*" --abbrev=0 `git rev-list --tags --max-count=1`)
+        tag=$(git for-each-ref --sort=creatordate --format "%(refname:short)" refs/tags | tail -r | grep -v "beta")
         echo "tag=$tag" >> $GITHUB_OUTPUT
 
     - name: Print potential tags
