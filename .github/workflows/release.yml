@@ -1,4 +1,4 @@
-name: Release to npm registry
+name: 🚀 Release to npm registry
 on:
   workflow_dispatch:
     inputs:
@@ -100,13 +100,32 @@ jobs:
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
           branch_name="chore/${release_type}-${NEW_VERSION}"
-
+          echo "branch_name=$branch_name" >> $GITHUB_OUTPUT
           git checkout -b "$branch_name"
 
           git add package.json package-lock.json
           git commit -m "${{ steps.chore-release-commit-message.outputs.commit_message }}"
           git push --set-upstream origin "$branch_name"
       
+      - name: Create release pull request
+        run: |
+          release_type=${{ github.event.inputs.release-type }}
+          gh pr create --base "main" --label "$release_type" --title "${{ steps.chore-release-commit-message.outputs.commit_message }}" --body "Automated PR. This PR updates package to the most recently published version: \`$NEW_VERSION\`."
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+     
+      - name: Auto-merge pull request
+        if: steps.chore-release-branch.outputs.branch_name 
+        run: |
+          gh pr merge ${{ steps.chore-release-branch.outputs.branch_name }} --admin --squash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Checkout base branch and pull latest changes
+        run: |
+          git checkout master
+          git pull origin master
+
       - name: Create git tag for the release
         id: create-git-tag
         run: |
@@ -114,13 +133,6 @@ jobs:
           git tag $GIT_TAG
           git push origin $GIT_TAG
           echo "git_tag=$GIT_TAG" >> $GITHUB_OUTPUT
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Create release pull request
-        run: |
-          release_type=${{ github.event.inputs.release-type }}
-          gh pr create --base "main" --label "$release_type" --title "${{ steps.chore-release-commit-message.outputs.commit_message }}" --body "Automated PR. This PR retroactively updates package to the most recently published version: \`$NEW_VERSION\`."
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
